@@ -131,3 +131,77 @@ public class UserJpaAdapter implements UserRepository {
     }
 }
 ````
+
+## 🧱 Las 3 Capas de la Arquitectura Hexagonal
+
+### La regla de la dependencia
+
+> ⚠️ `Regla de Oro`:
+> Las dependencias siempre apuntan desde afuera hacia adentro (hacia el núcleo del sistema).
+>
+> - La capa de `infraestructura`, depende de las capas internas (`aplicación`, `dominio`).
+> - La capa de `aplicación`, depende de la capa de `dominio`.
+> - La capa de `dominio` (núcleo del negocio) no depende de nadie, solo se conoce a sí mismo.
+
+`Dirección Única`: Las dependencias se dirigen hacia el centro:
+> `Infraestructura -> Aplicación -> Dominio`.
+
+### 🟤 Capa de Dominio
+
+Es el núcleo absoluto. No tiene ninguna dependencia externa. No conoce Spring, JPA, ni nada de infraestructura.
+
+#### ¿Qué va aquí?
+
+| Elemento                  | Descripción                                                 | Ejemplo                                               |
+|---------------------------|-------------------------------------------------------------|-------------------------------------------------------|
+| Entidades de Dominio      | Objetos con identidad y ciclo de vida (sin anotaciones JPA) | `User`, `Account`, `Policy`                           |
+| Value Objects             | Objetos inmutables, sin identidad, definidos por su valor   | `Email`, `Money`, `UserId`, `IBAN`                    |
+| Agregados (Aggregates)    | Grupos de entidades tratadas como una unidad                | `Order` con sus `OrderItems`                          |
+| Excepciones de Dominio    | Excepciones propias del negocio                             | `InsufficientFundsException`, `UserNotFoundException` |
+| Eventos de Dominio        | Hechos relevantes que ocurren en el negocio                 | `UserCreatedEvent`, `PaymentProcessedEvent`           |
+| Interfaces de Repositorio | Contratos de persistencia (puertos de salida)               | `UserRepository`, `AccountRepository`                 |
+| Servicios de Dominio      | Lógica que no pertenece a una sola entidad                  | `FundsTransferService`, `RiskCalculatorService`       |
+| Enumeraciones de Dominio  | Estados y tipos de negocio                                  | `UserStatus`, `AccountType`, `TransactionType`        |
+| Reglas de Negocio         | Invariantes del dominio                                     | Validaciones dentro de las entidades                  |
+| Factories                 | Creación compleja de entidades                              | `UserFactory`, `LoanFactory`                          |
+
+#### Ejemplo de Entidad de Dominio:
+
+````java
+public class Account {
+    private final AccountId id;
+    private Money balance;
+    private AccountStatus status;
+
+    // Las reglas de negocio viven aquí
+    public void withdraw(Money amount) {
+        if (amount.isGreaterThan(this.balance)) {
+            throw new InsufficientFundsException("Saldo insuficiente");
+        }
+        if (this.status == AccountStatus.BLOCKED) {
+            throw new AccountBlockedException("La cuenta está bloqueada");
+        }
+        this.balance = this.balance.subtract(amount);
+    }
+}
+````
+
+#### Ejemplo de Value Object:
+
+````java
+public record Money(BigDecimal amount, Currency currency) {
+    public Money {
+        if (amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("El monto no puede ser negativo");
+        }
+    }
+
+    public boolean isGreaterThan(Money other) {
+        return this.amount.compareTo(other.amount) > 0;
+    }
+
+    public Money subtract(Money other) {
+        return new Money(this.amount.subtract(other.amount), this.currency);
+    }
+}
+````
