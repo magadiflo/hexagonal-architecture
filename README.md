@@ -205,3 +205,173 @@ public record Money(BigDecimal amount, Currency currency) {
     }
 }
 ````
+
+### 🔵 Capa de Aplicación
+
+Orquesta los casos de uso. `Coordina las entidades de dominio` y usa los puertos para comunicarse con el exterior.
+`Conoce el dominio` pero `no conoce los detalles de infraestructura`.
+
+#### ¿Qué va aquí?
+
+| Elemento                 | Descripción                                              | Ejemplo                                            |
+|--------------------------|----------------------------------------------------------|----------------------------------------------------|
+| Casos de Uso (Use Cases) | Cada operación de negocio que ofrece el sistema          | `CreateUserUseCase`, `TransferFundsUseCase`        |
+| Puertos de Entrada       | Interfaces que los adaptadores de entrada usan           | `CreateUserUseCase` (la interfaz)                  |
+| Puertos de Salida        | Interfaces que los adaptadores de salida implementan     | `UserRepository`, `NotificationPort`               |
+| Servicios de Aplicación  | Implementan los casos de uso, orquestan el dominio       | `CreateUserService` implements `CreateUserUseCase` |
+| DTOs/Commands            | Objetos de transferencia de datos de entrada             | `CreateUserCommand`, `TransferFundsCommand`        |
+| Responses                | Objetos de respuesta de los casos de uso                 | `UserResponse`, `TransferResponse`                 |
+| Mappers de Aplicación    | Convierten entre Commands/Responses y objetos de dominio | `UserApplicationMapper`                            |
+| Validadores              | Validaciones de la capa de aplicación                    | `CreateUserCommandValidator`                       |
+| Manejadores de Eventos   | Reaccionan a eventos de dominio                          | `UserCreatedEventHandler`                          |
+| Transacciones            | Gestión de transacciones (usando anotaciones)            | `@Transactional` en el servicio                    |
+
+#### Ejemplo de Caso de Uso:
+
+````java
+// Puerto de Entrada
+public interface CreateUserUseCase {
+    UserResponse execute(CreateUserCommand command);
+}
+
+// Servicio de Aplicación (implementa el caso de uso)
+@Service
+@Transactional
+public class CreateUserService implements CreateUserUseCase {
+
+    private final UserRepository userRepository;         // Puerto de Salida
+    private final NotificationPort notificationPort;     // Puerto de Salida
+
+    @Override
+    public UserResponse execute(CreateUserCommand command) {
+        // 1. Validar que el email no existe
+        userRepository.findByEmail(command.email())
+                .ifPresent(u -> {
+                    throw new EmailAlreadyExistsException(command.email());
+                });
+
+        // 2. Crear la entidad de dominio
+        User user = User.create(command.name(), command.email(), command.documentNumber());
+
+        // 3. Persistir
+        User savedUser = userRepository.save(user);
+
+        // 4. Notificar
+        notificationPort.sendWelcomeEmail(savedUser.getEmail().value());
+
+        // 5. Retornar respuesta
+        return UserApplicationMapper.toResponse(savedUser);
+    }
+}
+````
+
+#### Ejemplo de Command (DTO de entrada):
+
+````java
+public record CreateUserCommand(String name,
+                                String email,
+                                String documentNumber) {
+}
+````
+
+### ⚖️ ¿Dónde debería ir `@Transactional` en Arquitectura Hexagonal?
+
+Si la capa de `Aplicación` no debe saber nada de frameworks, meter un `@Transactional` de `Spring` ahí es,
+técnicamente, "contaminar" el purismo de la arquitectura. Aquí existen dos posturas, ambas usadas en la industria:
+
+#### 📌 Postura A — `@Transactional` en la capa de Aplicación (El más común)
+
+Este es el enfoque `pragmático` que usan la mayoría de equipos en empresas reales con `Spring Boot`.
+El razonamiento es:
+
+> *"La gestión de transacciones es una preocupación de `aplicación`, `no de infraestructura`. El servicio de aplicación
+> es quien sabe qué operaciones deben ser atómicas. `@Transactional` de Spring es tan estándar y ubicuo que el costo
+> del acoplamiento es aceptable."*
+
+Es decir, lo aceptan como una `concesión pragmática`. En el 90% de proyectos Spring Boot empresariales vas a ver
+`@Transactional` en el servicio de aplicación.
+
+#### 📌 Postura B — `@Transactional` en la capa de Infraestructura (Pureza Arquitectónica Total)
+
+Este es el enfoque `purista`, y técnicamente es el más correcto si sigues la arquitectura hexagonal al pie de la letra.
+La lógica es la siguiente:
+
+> *"Si mañana cambio Spring Boot por Quarkus, esa anotación se rompe. El servicio de aplicación no debería saber
+> nada de Spring."*
+
+En este enfoque, existen varias estrategias:
+
+- `Estrategia 1` — El adaptador de salida gestiona la transacción:
+  ````java
+  // Infraestructura — el adaptador maneja la transacción
+  @Repository
+  public class UserJpaAdapter implements UserRepository {
+  
+      @Transactional  // ← aquí, en infraestructura
+      @Override
+      public User save(User user) {
+          /*...*/
+      }
+  }
+  ````
+
+- `Estrategia 2` — Un puerto de transacción explícito. Defines un puerto de salida que abstrae el concepto de
+  transacción:
+  ````java
+  // Aplicación — puerto de salida (solo una interfaz, sin Spring)
+  public interface TransactionPort {
+      <T> T executeInTransaction(Supplier<T> operation);
+  }
+  
+  // El servicio de aplicación lo usa sin saber que es Spring
+  public class CreateUserService implements CreateUserUseCase {
+  
+      private final UserRepository userRepository;
+      private final TransactionPort transactionPort; // ← abstracción
+  
+      @Override
+      public UserResponse execute(CreateUserCommand command) {
+          return transactionPort.executeInTransaction(() -> {
+              User user = User.create(command.name(), command.email());
+              return UserApplicationMapper.toResponse(userRepository.save(user));
+          });
+      }
+  }
+  
+  // Infraestructura — implementa el puerto usando Spring
+  @Component
+  public class SpringTransactionAdapter implements TransactionPort {
+  
+      @Transactional  // ← Spring vive aquí, en infraestructura
+      @Override
+      public <T> T executeInTransaction(Supplier<T> operation) {
+          return operation.get();
+      }
+  }
+  ````
+
+Con esto, si mañana cambias a Quarkus, solo cambias `SpringTransactionAdapter` por `QuarkusTransactionAdapter`.
+El servicio de aplicación no se toca.
+
+#### 📝 ¿Qué se usa en la vida real?
+
+Siendo honesto, así se distribuye en la industria:
+
+| Enfoque                                      | Cuándo se usa                                                                                                                      |
+|----------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| `@Transactional` en el Service de Aplicación | La gran mayoría de proyectos empresariales con Spring Boot. Se acepta el acoplamiento como trade-off.                              |
+| Puerto de Transacción explícito              | Proyectos que necesitan independencia real de framework, librerías multi-módulo, o cuando hay requisito explícito de portabilidad. |
+| `@Transactional` en el Adaptador JPA         | Cuando las transacciones son simples y acotadas a una sola operación de persistencia.                                              |
+
+### 🎯 Recomendación
+
+Tu intuición es correcta desde la teoría pura. En la práctica, la mayoría de equipos usan la `Postura A` aceptando
+ese acoplamiento como un trade-off razonable, porque cambiar de `Spring Boot` es algo que ocurre rarísimas veces.
+
+Sin embargo, si quieres ser purista o si el proyecto lo justifica, la `Estrategia 2` (puerto de transacción) es la
+forma más elegante y correcta de resolverlo.
+
+En la `Fase 2`, cuando hagamos el proyecto, se mostrará el enfoque más usado en empresas reales
+(con `@Transactional` en la capa de `aplicación`) pero dejando clara esta nota para saber exactamente qué
+trade-off se está tomando y por qué. 
+
