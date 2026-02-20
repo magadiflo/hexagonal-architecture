@@ -373,5 +373,73 @@ forma más elegante y correcta de resolverlo.
 
 En la `Fase 2`, cuando hagamos el proyecto, se mostrará el enfoque más usado en empresas reales
 (con `@Transactional` en la capa de `aplicación`) pero dejando clara esta nota para saber exactamente qué
-trade-off se está tomando y por qué. 
+trade-off se está tomando y por qué.
 
+### 🔴 Capa de Infraestructura
+
+Contiene todos los `detalles técnicos`. Aquí viven los adaptadores. Esta capa `conoce todo`: conoce Spring, JPA, Kafka,
+HTTP, etc. Pero `el dominio no la conoce a ella`.
+
+#### ¿Qué va aquí?
+
+| Elemento                   | Descripción                                         | Ejemplo                                      |
+|----------------------------|-----------------------------------------------------|----------------------------------------------|
+| Controladores REST         | Adaptadores de entrada HTTP                         | `UserController`, `AccountController`        |
+| Consumidores de Mensajería | Adaptadores de entrada de colas                     | `KafkaUserConsumer`, `RabbitMQConsumer`      |
+| Schedulers / Jobs          | Adaptadores de entrada programados                  | `ReportScheduler`, `CleanupJob`              |
+| Repositorios JPA           | Interfaces de Spring Data JPA                       | `UserJpaRepository` extends `JpaRepository`  |
+| Adaptadores de Repositorio | Implementan los puertos de salida usando JPA        | `UserJpaAdapter` implements `UserRepository` |
+| Entidades JPA              | Entidades de base de datos (≠ entidades de dominio) | `UserEntity`, `AccountEntity`                |
+| Clientes HTTP (RestClient) | Adaptadores para consumir APIs externas             | `PaymentGatewayClient`, `NotificationClient` |
+| Productores de mensajería  | Envían mensajes a colas/topics                      | `KafkaEventProducer`                         |
+| Configuraciones            | Beans de Spring, configuración de seguridad         | `SecurityConfig`, `RestClientConfig`         |
+| Mappers de Infraestructura | Convierten entre entidades JPA y dominio            | `UserInfrastructureMapper`                   |
+| Excepciones Handler        | Manejo global de excepciones HTTP                   | `GlobalExceptionHandler`                     |
+| Migraciones de BD          | Scripts de Flyway/Liquibase                         | `V1__create_users_table.sql`                 |
+| Implementaciones de Caché  | Redis, EHCache, etc.                                | `RedisCacheAdapter`                          |
+
+#### Ejemplo de Adaptador de Repositorio:
+
+````java
+
+@Repository
+public class UserJpaAdapter implements UserRepository {
+
+    private final UserJpaRepository jpaRepository;
+    private final UserInfrastructureMapper mapper;
+
+    @Override
+    public User save(User user) {
+        UserEntity entity = mapper.toEntity(user);
+        UserEntity savedEntity = jpaRepository.save(entity);
+        return mapper.toDomain(savedEntity);
+    }
+
+    @Override
+    public Optional<User> findById(UserId id) {
+        return jpaRepository.findById(id.value())
+                .map(mapper::toDomain);
+    }
+}
+````
+
+#### Ejemplo de Entidad JPA (≠ Entidad de Dominio):
+
+````java
+
+@Entity
+@Table(name = "users")
+public class UserEntity {
+    @Id
+    private UUID id;
+    private String name;
+    private String email;
+    private String documentNumber;
+    private String status;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+}
+````
+
+> 💡 `Nota crítica`: La entidad JPA (`UserEntity`) y la entidad de dominio (`User`) son objetos distintos.
+> El mapper de infraestructura convierte entre ambas. Esto asegura que JPA no "contamine" el dominio.
