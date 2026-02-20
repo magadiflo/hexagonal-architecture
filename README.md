@@ -38,6 +38,38 @@ Imagen extraída
 de [Construyendo una RESTful API con Spring Boot: Integración de DDD y Arquitectura Hexagonal (Juan Negrin)](https://medium.com/@juannegrin/construyendo-una-restful-api-con-spring-boot-integraci%C3%B3n-de-ddd-y-arquitectura-hexagonal-af824a3a4d05)  
 ![01.png](assets/01-teoria/01.png)
 
+````
+╔═══════════════════════════════════════════════════════════════╗
+║                    INFRAESTRUCTURA 🔴                         ║
+║                                                               ║
+║  [REST API]  [Kafka]  [Scheduler]  [CLI]                      ║
+║       │          │         │         │                        ║
+║       └──────────┴─────────┴─────────┘                        ║
+║                          │                                    ║
+║             Adaptadores de Entrada ▼                          ║
+║  ╔══════════════════════════════════════════════════╗         ║
+║  ║                APLICACIÓN 🔵                     ║         ║
+║  ║                                                  ║         ║
+║  ║  [Puerto Entrada] ──▶ [Caso de Uso / Service]    ║         ║
+║  ║                              │                   ║         ║
+║  ║         ╔════════════════════════════╗           ║         ║
+║  ║         ║       DOMINIO 🟤           ║           ║         ║
+║  ║         ║                            ║           ║         ║
+║  ║         ║  Entidades  Value Objects  ║           ║         ║
+║  ║         ║  Aggregates Domain Events  ║           ║         ║
+║  ║         ║  Domain Services  Enums    ║           ║         ║
+║  ║         ╚════════════════════════════╝           ║         ║
+║  ║                              │                   ║         ║
+║  ║                    [Puerto Salida]               ║         ║
+║  ╚══════════════════════════════════════════════════╝         ║
+║                          │                                    ║
+║             Adaptadores de Salida ▼                           ║
+║  [JPA Adapter] [HTTP Client] [Kafka Producer] [Email]         ║
+║       │               │              │           │            ║
+║  [Base Datos]   [API Externa]   [Message Broker] [SMTP]       ║
+╚═══════════════════════════════════════════════════════════════╝ 
+````
+
 ## 🔑 Conceptos Clave
 
 ### 🟣 Dominio
@@ -517,4 +549,16 @@ Veamos cómo fluye una petición completa en la arquitectura hexagonal:
 | Overhead para proyectos pequeños | Para un microservicio muy sencillo puede ser excesivo                      |
 | Muchos mappers                   | Necesitas convertir entre objetos de dominio, aplicación e infraestructura |
 | Indirección                      | Más capas de abstracción pueden dificultar el debugging inicial            |
+
+## 🧱 Principios SOLID aplicados
+
+La Arquitectura Hexagonal es una aplicación práctica de los principios SOLID:
+
+| Principio                     | Cómo se aplica                                                                                                           |
+|-------------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| S — Responsabilidad Única     | Cada clase tiene una responsabilidad: el caso de uso orquesta, el adaptador adapta, la entidad guarda el estado y reglas |
+| O — Abierto/Cerrado           | Puedes agregar nuevos adaptadores (ej: GraphQL) sin modificar el dominio                                                 |
+| L — Sustitución de Liskov     | Los adaptadores de infraestructura son intercambiables si cumplen el contrato del puerto                                 |
+| I — Segregación de Interfaces | Los puertos son interfaces pequeñas y específicas por caso de uso                                                        |
+| D — Inversión de Dependencias | El dominio define interfaces (puertos), la infraestructura las implementa. El dominio NO depende de la infraestructura   |
 
