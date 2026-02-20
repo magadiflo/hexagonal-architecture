@@ -134,18 +134,6 @@ public class UserJpaAdapter implements UserRepository {
 
 ## 🧱 Las 3 Capas de la Arquitectura Hexagonal
 
-### La regla de la dependencia
-
-> ⚠️ `Regla de Oro`:
-> Las dependencias siempre apuntan desde afuera hacia adentro (hacia el núcleo del sistema).
->
-> - La capa de `infraestructura`, depende de las capas internas (`aplicación`, `dominio`).
-> - La capa de `aplicación`, depende de la capa de `dominio`.
-> - La capa de `dominio` (núcleo del negocio) no depende de nadie, solo se conoce a sí mismo.
-
-`Dirección Única`: Las dependencias se dirigen hacia el centro:
-> `Infraestructura -> Aplicación -> Dominio`.
-
 ### 🟤 Capa de Dominio
 
 Es el núcleo absoluto. No tiene ninguna dependencia externa. No conoce Spring, JPA, ni nada de infraestructura.
@@ -443,3 +431,65 @@ public class UserEntity {
 
 > 💡 `Nota crítica`: La entidad JPA (`UserEntity`) y la entidad de dominio (`User`) son objetos distintos.
 > El mapper de infraestructura convierte entre ambas. Esto asegura que JPA no "contamine" el dominio.
+
+## 🔄 Regla de la dependencia
+
+`Regla de dependencia`. Esta regla establece que todas las dependencias del código fuente solo pueden apuntar
+desde fuera hacia dentro, es decir, en dirección al hexágono de la aplicación:
+
+Imagen extraída
+de [Hexagonal Architecture – What Is It? Why Use It?(Sven Woltmann)](https://www.happycoders.eu/software-craftsmanship/hexagonal-architecture/)  
+![02.png](assets/01-teoria/02.png)
+
+> ⚠️ `Regla de Oro`:
+> Las dependencias siempre apuntan desde afuera hacia adentro (hacia el núcleo del sistema).
+>
+> - La capa de `infraestructura`, depende de las capas internas (`aplicación`, `dominio`).
+> - La capa de `aplicación`, depende de la capa de `dominio`.
+> - La capa de `dominio` (núcleo del negocio) no depende de nadie, solo se conoce a sí mismo.
+
+`Dirección Única`: Las dependencias se dirigen hacia el centro:
+> `Infraestructura -> Aplicación -> Dominio`.
+
+Esta regla proporciona la posibilidad de cambiar elementos de nuestras capas exteriores sin afectar las internas. Por
+esta razón, tiene más sentido que los aspectos con mayor variabilidad estén en la capa más externa (infraestructura), ya
+que no dependen de nosotros.
+
+> Esta regla también se conoce como el `DIP o Principio de Inversión de Dependencia`, uno de los Principios `SOLID`.
+
+Veamos cómo fluye una petición completa en la arquitectura hexagonal:
+
+````
+📱 Cliente HTTP
+      │
+      ▼
+🔴 [Controlador REST]          ← Adaptador de Entrada
+      │ CreateUserRequest
+      │ (mapper a Command)
+      ▼
+🔵 [CreateUserUseCase]         ← Puerto de Entrada (interfaz)
+      │
+      ▼
+🔵 [CreateUserService]         ← Servicio de Aplicación
+      │
+      ├──▶ 🟤 [User.create()]  ← Lógica de Dominio
+      │
+      ├──▶ 🔵 [UserRepository] ← Puerto de Salida (interfaz)
+      │         │
+      │         ▼
+      │    🔴 [UserJpaAdapter] ← Adaptador de Salida
+      │         │
+      │         ▼
+      │    🗄️ [Base de Datos]
+      │
+      └──▶ 🔵 [NotificationPort] ← Puerto de Salida (interfaz)
+                │
+                ▼
+          🔴 [EmailAdapter]   ← Adaptador de Salida
+                │
+                ▼
+          📧 [Servidor SMTP]
+````
+
+> ✅ `La regla`: Las flechas de dependencia siempre apuntan hacia el centro (hacia el dominio). La infraestructura
+> depende de la aplicación, la aplicación depende del dominio. Nunca al revés.
