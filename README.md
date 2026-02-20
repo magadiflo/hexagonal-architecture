@@ -493,3 +493,28 @@ Veamos cómo fluye una petición completa en la arquitectura hexagonal:
 
 > ✅ `La regla`: Las flechas de dependencia siempre apuntan hacia el centro (hacia el dominio). La infraestructura
 > depende de la aplicación, la aplicación depende del dominio. Nunca al revés.
+
+## ⚖️ Ventajas y Desventajas
+
+### ✅ Ventajas
+
+| Ventaja                     | Descripción                                                                         |
+|-----------------------------|-------------------------------------------------------------------------------------|
+| Testabilidad                | Puedes testear el dominio y la aplicación sin infraestructura (BD, HTTP, etc.)      |
+| Mantenibilidad              | Cambios en infraestructura no afectan el dominio                                    |
+| Flexibilidad                | Puedes cambiar la BD, el framework web o el broker de mensajes sin tocar el negocio |
+| Claridad                    | Cada pieza tiene su lugar definido                                                  |
+| Independencia de Frameworks | Tu dominio no está acoplado a Spring, JPA ni nada                                   |
+| Paralelismo                 | Equipos pueden trabajar en capas distintas simultáneamente                          |
+| Longevidad                  | El dominio puede sobrevivir cambios tecnológicos radicales                          |
+
+### ❌ Desventajas
+
+| Desventajas                      | Descripción                                                                |
+|----------------------------------|----------------------------------------------------------------------------|
+| Complejidad inicial              | Más archivos y capas que un CRUD tradicional                               |
+| Curva de aprendizaje             | Requiere entender bien los conceptos antes de implementar                  |
+| Overhead para proyectos pequeños | Para un microservicio muy sencillo puede ser excesivo                      |
+| Muchos mappers                   | Necesitas convertir entre objetos de dominio, aplicación e infraestructura |
+| Indirección                      | Más capas de abstracción pueden dificultar el debugging inicial            |
+
