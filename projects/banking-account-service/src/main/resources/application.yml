@@ -1,3 +1,41 @@
+server:
+  port: 8080
+  error:
+    include-message: always
+
 spring:
   application:
     name: banking-account-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5435/db_hexagonal
+    username: magadiflo
+    password: magadiflo
+
+  jpa:
+    hibernate:
+      ddl-auto: validate    # validate: hibernate solo valida el schema, Flyway es quien lo crea
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    enabled: true
+    locations: classpath:db/migration
+    baseline-description: 'init'
+    baseline-version: 0
+
+# ===== Configuración personalizada del servicio externo (ExchangeRate API) =====
+exchange-rate:
+  api:
+    base-url: https://v6.exchangerate-api.com/v6
+    api-key: YOUR_API_KEY_HERE     # Reemplazar con el API key real
+    timeout-seconds: 5
+
+logging:
+  level:
+    dev.magadiflo: debug
+    org.hibernate.SQL: debug
+    org.flywaydb: info
