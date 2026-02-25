@@ -1,0 +1,23 @@
+services:
+  s-postgres-hexagonal:
+    image: postgres:17-alpine
+    container_name: c-postgres-hexagonal
+    restart: unless-stopped
+    ports:
+      - '5435:5432'
+    environment:
+      POSTGRES_DB: db_hexagonal
+      POSTGRES_USER: magadiflo
+      POSTGRES_PASSWORD: magadiflo
+    volumes:
+      - postgres-hexagonal-data:/var/lib/postgresql/data
+    networks:
+      - hexagonal-net
+
+volumes:
+  postgres-hexagonal-data:
+    name: postgres-hexagonal-data
+
+networks:
+  hexagonal-net:
+    name: hexagonal-net
