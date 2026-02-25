@@ -28,7 +28,7 @@ CREATE TABLE accounts(
 );
 
 -- Índices para búsquedas frecuentes
-CREATE INDEX idx_accounts_customer_id ON accounts(customer_id); -- FK no crea índice automático
+CREATE INDEX idx_accounts_customer_id ON accounts(customer_id); -- Creamos índice de customer_id, porque el FK no crea índice automático
 CREATE INDEX idx_accounts_status ON accounts(status);           -- útil para filtrar cuentas por estado
 
 COMMENT ON TABLE accounts IS 'Tabla de cuentas bancarias';
