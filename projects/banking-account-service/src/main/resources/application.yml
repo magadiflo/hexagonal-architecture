@@ -7,6 +7,14 @@ spring:
   application:
     name: banking-account-service
 
+  # API Versioning (Spring Boot 4)
+  mvc:
+    api-version:
+      required: true
+      supported: 1,2
+      use:
+        path-segment: 1
+
   datasource:
     url: jdbc:postgresql://localhost:5435/db_hexagonal
     username: magadiflo
