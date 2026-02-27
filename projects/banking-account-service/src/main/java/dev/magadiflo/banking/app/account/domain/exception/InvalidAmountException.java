@@ -1,7 +1,7 @@
 package dev.magadiflo.banking.app.account.domain.exception;
 
 public class InvalidAmountException extends RuntimeException {
-    public InvalidAmountException(String reason) {
-        super("Monto inválido: %s".formatted(reason));
+    public InvalidAmountException() {
+        super("El monto de la operación debe ser mayor a cero");
     }
 }
