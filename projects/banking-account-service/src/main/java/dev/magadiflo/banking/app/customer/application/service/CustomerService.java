@@ -116,6 +116,8 @@ public class CustomerService implements GetAllCustomersUseCase, GetCustomerByIdU
         this.customerRepositoryPort.save(customer);
     }
 
+    // MÉTODOS PRIVADOS DE APOYO
+    // =========================================================
     private Customer findByCodeOrThrow(String customerCode) {
         return this.customerRepositoryPort.findByCustomerCode(customerCode)
                 .orElseThrow(() -> new CustomerNotFoundException(customerCode));

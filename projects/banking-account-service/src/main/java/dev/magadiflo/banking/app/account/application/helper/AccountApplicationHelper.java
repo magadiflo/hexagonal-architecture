@@ -18,4 +18,14 @@ public class AccountApplicationHelper {
         long random = ThreadLocalRandom.current().nextLong(100000000L, 999999999L);
         return "BNK-%s%d".formatted(year, random);
     }
+
+    /**
+     * Genera el número de referencia de transacción: TXN-XXXXXXXXXXXXXX
+     * Ejemplo: TXN-20250001234567
+     */
+    public String generateReferenceNumber() {
+        String year = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy"));
+        long random = ThreadLocalRandom.current().nextLong(100000000L, 999999999L);
+        return "TXN-%s%d".formatted(year, random);
+    }
 }
