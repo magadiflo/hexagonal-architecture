@@ -8,6 +8,8 @@ import java.util.Optional;
 public interface AccountRepositoryPort {
     List<Account> findByCustomerId(Long customerId);
 
+    Optional<Account> findById(Long accountId);
+
     Optional<Account> findByAccountNumber(String accountNumber);
 
     Account save(Account account);
