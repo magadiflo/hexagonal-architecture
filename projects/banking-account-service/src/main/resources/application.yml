@@ -48,7 +48,7 @@ spring:
 exchange-rate:
   api:
     base-url: https://v6.exchangerate-api.com/v6
-    api-key: YOUR_API_KEY_HERE     # Reemplazar con el API key real
+    api-key: 8e2e421bfc44c2a3c72ef218
     timeout-seconds: 5
 
 logging:
