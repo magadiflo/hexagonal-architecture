@@ -13,6 +13,7 @@ import dev.magadiflo.banking.app.customer.domain.exception.CustomerInactiveExcep
 import dev.magadiflo.banking.app.customer.domain.exception.CustomerNotFoundException;
 import dev.magadiflo.banking.app.transaction.domain.exception.TransactionNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -24,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -35,6 +37,7 @@ public class GlobalExceptionHandler {
             TransactionNotFoundException.class
     })
     public ResponseEntity<ErrorResponse> handleNotFound(Exception e, HttpServletRequest request) {
+        log.error("{}", e.getMessage());
         return this.buildResponse(HttpStatus.NOT_FOUND, e.getMessage(), request.getRequestURI());
     }
 
@@ -42,6 +45,7 @@ public class GlobalExceptionHandler {
     // =========================================================
     @ExceptionHandler(CustomerAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleConflict(Exception e, HttpServletRequest request) {
+        log.error("{}", e.getMessage());
         return this.buildResponse(HttpStatus.CONFLICT, e.getMessage(), request.getRequestURI());
     }
 
@@ -58,6 +62,7 @@ public class GlobalExceptionHandler {
             InvalidAmountException.class
     })
     public ResponseEntity<ErrorResponse> handleUnprocessable(Exception e, HttpServletRequest request) {
+        log.error("{}", e.getMessage());
         return this.buildResponse(HttpStatus.UNPROCESSABLE_CONTENT, e.getMessage(), request.getRequestURI());
     }
 
@@ -65,6 +70,7 @@ public class GlobalExceptionHandler {
     // =========================================================
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException e, HttpServletRequest request) {
+        log.error("{}", e.getMessage());
         Map<String, String> errors = new HashMap<>();
         e.getBindingResult().getAllErrors().forEach(error -> {
             String field = ((FieldError) error).getField();
@@ -85,6 +91,7 @@ public class GlobalExceptionHandler {
     // =========================================================
     @ExceptionHandler(ExchangeRateUnavailableException.class)
     public ResponseEntity<ErrorResponse> handleBadGateway(Exception e, HttpServletRequest request) {
+        log.error("{}", e.getMessage());
         return this.buildResponse(HttpStatus.BAD_GATEWAY, e.getMessage(), request.getRequestURI());
     }
 
@@ -92,6 +99,7 @@ public class GlobalExceptionHandler {
     // =========================================================
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception e, HttpServletRequest request) {
+        log.error("{}", e.getMessage());
         return this.buildResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "Ocurrió un error inesperado. Por favor intente nuevamente.",
