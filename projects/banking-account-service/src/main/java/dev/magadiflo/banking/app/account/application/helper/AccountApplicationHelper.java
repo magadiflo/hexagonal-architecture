@@ -15,7 +15,7 @@ public class AccountApplicationHelper {
      */
     public String generateAccountNumber() {
         String year = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy"));
-        long random = ThreadLocalRandom.current().nextLong(100000000L, 999999999L);
+        long random = ThreadLocalRandom.current().nextLong(1_000_000_000L, 9_999_999_999L);
         return "BNK-%s%d".formatted(year, random);
     }
 
@@ -25,7 +25,7 @@ public class AccountApplicationHelper {
      */
     public String generateReferenceNumber() {
         String year = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy"));
-        long random = ThreadLocalRandom.current().nextLong(100000000L, 999999999L);
+        long random = ThreadLocalRandom.current().nextLong(1_000_000_000L, 9_999_999_999L);
         return "TXN-%s%d".formatted(year, random);
     }
 }
