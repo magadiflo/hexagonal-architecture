@@ -1,4 +1,4 @@
-package dev.magadiflo.banking.app.customer.application.service.unit;
+package dev.magadiflo.banking.app.customer.unit;
 
 import dev.magadiflo.banking.app.customer.application.dto.command.CreateCustomerCommand;
 import dev.magadiflo.banking.app.customer.application.dto.command.UpdateCustomerCommand;
