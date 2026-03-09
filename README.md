@@ -15,6 +15,7 @@ desde la documentación teórica hasta implementaciones avanzadas y refactorizac
 | # | Proyecto                                                      | Descripción                                                                                                                                                                                                                                 | Stack                                   |
 |---|---------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------|
 | 1 | [banking-account-service](./projects/banking-account-service) | Proyecto principal desarrollado capa por capa con documentación detallada. Cubre teoría, dominio rico con Value Objects, capa de aplicación con puertos y adaptadores, infraestructura con JPA + MapStruct + RestClient, y tests unitarios. | Java 25 · Spring Boot 4 · PostgreSQL 17 |
+| 2 | [task-service](./projects/task-service)                       | Tomado del canal de youtube de `Daniel Españadero`                                                                                                                                                                                          |                                         |
 
 ---
 

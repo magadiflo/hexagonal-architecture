@@ -1,0 +1,21 @@
+# DataSource settings
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/db_hexagonal_architecture?useSSL=false&serverTimezone=America/Lima
+    username: root
+    password: magadiflo
+
+  # Hibernate settings
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+
+# Logging settings
+logging:
+  level:
+    dev.magadiflo: debug
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
