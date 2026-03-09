@@ -4,6 +4,20 @@ Marco teórico elaborado por Martín Díaz (02/2026) utilizando IAs (ChatGPT, Co
 
 ---
 
+### Repositorio de Proyectos
+
+Este repositorio contiene proyectos desarrollados con `Arquitectura Hexagonal` `(Ports and Adapters)`, organizados de
+forma progresiva. Cada proyecto aborda distintos aspectos y niveles de profundidad de esta arquitectura,
+desde la documentación teórica hasta implementaciones avanzadas y refactorizaciones.
+
+#### 📋 Proyectos
+
+| # | Proyecto                                                      | Descripción                                                                                                                                                                                                                                 | Stack                                   |
+|---|---------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------|
+| 1 | [banking-account-service](./projects/banking-account-service) | Proyecto principal desarrollado capa por capa con documentación detallada. Cubre teoría, dominio rico con Value Objects, capa de aplicación con puertos y adaptadores, infraestructura con JPA + MapStruct + RestClient, y tests unitarios. | Java 25 · Spring Boot 4 · PostgreSQL 17 |
+
+---
+
 ## 📚 ¿Qué es la Arquitectura Hexagonal?
 
 La `Arquitectura Hexagonal`, también conocida como `Arquitectura de Puertos y Adaptadores`, fue propuesta por
