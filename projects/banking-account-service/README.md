@@ -40,7 +40,7 @@ Trabajaremos con **3 tablas** relacionadas entre sí:
 ┌─────────────────┐         ┌──────────────────────┐         ┌──────────────────────────┐
 │    customers    │         │       accounts       │         │       transactions       │
 ├─────────────────┤         ├──────────────────────┤         ├──────────────────────────┤
-│ id (PK)  UUID   │◄──┐     │ id (PK)  UUID        │◄──┐     │ id (PK)  UUID            │
+│ id (PK)         │◄──┐     │ id (PK)              │◄──┐     │ id (PK)                  │
 │ document_number │   └─────│ customer_id (FK)     │   └─────│ account_id (FK)          │
 │ document_type   │         │ account_number       │         │ transaction_type         │
 │ first_name      │         │ account_type         │         │ amount                   │
@@ -62,7 +62,7 @@ Relaciones:
 
 | Columna           | Tipo           | Restricciones              | Descripción                   |
 |-------------------|----------------|----------------------------|-------------------------------|
-| `id`              | `UUID`         | PK, NOT NULL               | Identificador único           |
+| `id`              | `LONG`         | PK, NOT NULL               | Identificador único           |
 | `document_number` | `VARCHAR(20)`  | UNIQUE, NOT NULL           | Número de documento           |
 | `document_type`   | `VARCHAR(10)`  | NOT NULL                   | DNI, RUC, PASAPORTE           |
 | `first_name`      | `VARCHAR(100)` | NOT NULL                   | Nombres                       |
@@ -79,8 +79,8 @@ Relaciones:
 
 | Columna          | Tipo            | Restricciones               | Descripción                       |
 |------------------|-----------------|-----------------------------|-----------------------------------|
-| `id`             | `UUID`          | PK, NOT NULL                | Identificador único               |
-| `customer_id`    | `UUID`          | FK → customers.id, NOT NULL | Cliente propietario               |
+| `id`             | `LONG`          | PK, NOT NULL                | Identificador único               |
+| `customer_id`    | `LONG`          | FK → customers.id, NOT NULL | Cliente propietario               |
 | `account_number` | `VARCHAR(20)`   | UNIQUE, NOT NULL            | Número de cuenta generado         |
 | `account_type`   | `VARCHAR(20)`   | NOT NULL                    | SAVINGS, CHECKING                 |
 | `balance`        | `DECIMAL(19,4)` | NOT NULL, DEFAULT 0         | Saldo actual                      |
@@ -95,8 +95,8 @@ Relaciones:
 
 | Columna            | Tipo            | Restricciones              | Descripción                                    |
 |--------------------|-----------------|----------------------------|------------------------------------------------|
-| `id`               | `UUID`          | PK, NOT NULL               | Identificador único                            |
-| `account_id`       | `UUID`          | FK → accounts.id, NOT NULL | Cuenta asociada                                |
+| `id`               | `LONG`          | PK, NOT NULL               | Identificador único                            |
+| `account_id`       | `LONG`          | FK → accounts.id, NOT NULL | Cuenta asociada                                |
 | `transaction_type` | `VARCHAR(20)`   | NOT NULL                   | DEPOSIT, WITHDRAWAL, TRANSFER_IN, TRANSFER_OUT |
 | `amount`           | `DECIMAL(19,4)` | NOT NULL                   | Monto de la operación                          |
 | `currency`         | `VARCHAR(3)`    | NOT NULL                   | Moneda de la transacción                       |
@@ -246,7 +246,7 @@ public class ExchangeRateRestClientAdapter implements ExchangeRatePort {
 ## 8. 📁 Estructura de Directorios
 
 > Aplicamos **Vertical Slicing** — la feature es el eje de organización. Cada módulo de negocio (`customer`, `account`,
-`transaction`) contiene sus propias capas completas.
+> `transaction`) contiene sus propias capas completas.
 
 ```
 banking-account-service/
