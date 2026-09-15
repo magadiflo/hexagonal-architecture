@@ -16,7 +16,7 @@ CREATE TABLE customers(
     CONSTRAINT uq_customers_customer_code UNIQUE (customer_code),
     CONSTRAINT uq_customers_document_number UNIQUE (document_number),
     CONSTRAINT uq_customers_email UNIQUE (email),
-    CONSTRAINT chk_customers_document_type CHECK (document_type IN ('DNI', 'RUC', 'PASAPORTE')),
+    CONSTRAINT chk_customers_document_type CHECK (document_type IN ('DNI', 'RUC', 'PASSPORT')),
     CONSTRAINT chk_customers_status CHECK (status IN ('ACTIVE', 'INACTIVE', 'BLOCKED'))
 );
 
@@ -28,5 +28,5 @@ COMMENT ON TABLE customers IS 'Tabla de clientes del banco';
 COMMENT ON COLUMN customers.id IS 'Primary Key: usado para joins, FK, índices, etc.';
 COMMENT ON COLUMN customers.customer_code IS 'Referencia de negocio, la que viaja en la API, URLs, respuestas JSON';
 COMMENT ON COLUMN customers.document_number IS 'Número de documento de identidad';
-COMMENT ON COLUMN customers.document_type IS 'Tipo de documento: DNI, RUC, PASAPORTE';
+COMMENT ON COLUMN customers.document_type IS 'Tipo de documento: DNI, RUC, PASSPORT';
 COMMENT ON COLUMN customers.status IS 'Estado del cliente: ACTIVE, INACTIVE, BLOCKED';
