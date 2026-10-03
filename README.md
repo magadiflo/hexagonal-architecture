@@ -12,13 +12,14 @@ desde la documentación teórica hasta implementaciones avanzadas y refactorizac
 
 #### 📋 Proyectos
 
-| # | Proyecto                                                      | Descripción                                                                                                                                                                                                                                 | Stack                                |
-|---|---------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------|
-| 1 | [banking-account-service](./projects/banking-account-service) | Proyecto principal desarrollado capa por capa con documentación detallada. Cubre teoría, dominio rico con Value Objects, capa de aplicación con puertos y adaptadores, infraestructura con JPA + MapStruct + RestClient, y tests unitarios. | Java 25 · Spring Boot 4 · PostgreSQL |
-| 2 | [task-service](./projects/task-service)                       | Tomado del canal de youtube de `Daniel Españadero`                                                                                                                                                                                          | Java 25 · Spring Boot 4 · MySQL      |
-| 3 | [customer-order-service](./projects/customer-order-service)   | Tomado del canal de youtube de `NullSafe Architect`                                                                                                                                                                                         | Java 25 · Spring Boot 4 · PostgreSQL |
-| 4 | [post-service](./projects/post-service)                       | Tomado de `Luis Antonio (pág. web medium) - Arquitectura Hexagonal con Spring Boot — Parte 1,2,3,4`                                                                                                                                         | Java 25 · Spring Boot 4 · OpenFeign  |
-| 5 | [student-service](./projects/student-service)                 | Tomado del canal de youtube de `Dev Dominio`                                                                                                                                                                                                | Java 25 · Spring Boot 4 · PostgreSQL |
+| # | Proyecto                                                                    | Descripción                                                                                                                                                                                                                                                      | Stack                                |
+|---|-----------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------|
+| 1 | [banking-account-service](./projects/banking-account-service)               | Proyecto principal desarrollado capa por capa con documentación detallada. Cubre teoría, dominio rico con Value Objects, capa de aplicación con puertos y adaptadores, infraestructura con JPA + MapStruct + RestClient, y tests unitarios.                      | Java 25 · Spring Boot 4 · PostgreSQL |
+| 2 | [banking-account-pure-hexagonal](./projects/banking-account-pure-hexagonal) | Variante 100 % pura de `banking-account-service`, enfocada en el dominio `Customer`. Elimina toda anotación de framework de las capas de dominio y aplicación, resolviendo la creación de beans y la transaccionalidad (patrón Decorator) desde infraestructura. | Java 25 · Spring Boot 4 · PostgreSQL |
+| 3 | [task-service](./projects/task-service)                                     | Tomado del canal de youtube de `Daniel Españadero`                                                                                                                                                                                                               | Java 25 · Spring Boot 4 · MySQL      |
+| 4 | [customer-order-service](./projects/customer-order-service)                 | Tomado del canal de youtube de `NullSafe Architect`                                                                                                                                                                                                              | Java 25 · Spring Boot 4 · PostgreSQL |
+| 5 | [post-service](./projects/post-service)                                     | Tomado de `Luis Antonio (pág. web medium) - Arquitectura Hexagonal con Spring Boot — Parte 1,2,3,4`                                                                                                                                                              | Java 25 · Spring Boot 4 · OpenFeign  |
+| 6 | [student-service](./projects/student-service)                               | Tomado del canal de youtube de `Dev Dominio`                                                                                                                                                                                                                     | Java 25 · Spring Boot 4 · PostgreSQL |
 
 ---
 
@@ -409,8 +410,8 @@ ese acoplamiento como un trade-off razonable, porque cambiar de `Spring Boot` es
 Sin embargo, si quieres ser purista o si el proyecto lo justifica, la `Estrategia 2` (puerto de transacción) es la
 forma más elegante y correcta de resolverlo.
 
-En la `Fase 2`, cuando hagamos el proyecto, se mostrará el enfoque más usado en empresas reales
-(con `@Transactional` en la capa de `aplicación`) pero dejando clara esta nota para saber exactamente qué
+En la `Fase 2`, cuando hagamos el proyecto, se mostrará el enfoque más usado en empresas reales (con `@Transactional` en
+la capa de `aplicación`) pero dejando clara esta nota para saber exactamente qué
 trade-off se está tomando y por qué.
 
 ### 🔴 Capa de Infraestructura
@@ -488,7 +489,7 @@ public class UserEntity {
 desde fuera hacia dentro, es decir, en dirección al hexágono de la aplicación:
 
 Imagen extraída
-de [Hexagonal Architecture – What Is It? Why Use It?(Sven Woltmann)](https://www.happycoders.eu/software-craftsmanship/hexagonal-architecture/)  
+de [Hexagonal Architecture – What Is It? Why Use It? (Sven Woltmann)](https://www.happycoders.eu/software-craftsmanship/hexagonal-architecture/)  
 ![02.png](assets/01-teoria/02.png)
 
 > ⚠️ `Regla de Oro`:
